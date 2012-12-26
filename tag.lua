@@ -21,9 +21,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
 
 appname = "Tagger"
 dlg = nil
+test_label = nil
 
 function dlog(msg)
-	vlc.msg.dbg(string.format("[%s] %s", appname, msg))
+	vlc.msg.warn(string.format("[%s] %s", appname, msg))
 end
 
 function descriptor()
@@ -33,23 +34,37 @@ function descriptor()
 		author = "Josh Watzman";
 		url = "https://github.com/jwatzman/vlc-tag/";
 		shortdesc = "Tag arbitrary media and filter to those tags";
+		capabilities = { "input-listener", "playing-listener", "meta-listener" }
 	}
 end
 
 function activate()
 	dlog("activate")
 	dlg = vlc.dialog(appname)
-	dlg:add_label("Hi test")
+	test_label = dlg:add_label("Hi test", 1, 1)
 end
 
 function deactivate()
 	dlog("deactivate")
+	test_label = nil
 	dlg:delete()
 	dlg = nil
-	vlc.deactivate()
 end
 
 function close()
 	dlog("close")
-	deactivate()
+	vlc.deactivate()
+end
+
+function input_changed()
+	dlog("input changed")
+	test_label:set_text(vlc.input.item():uri())
+end
+
+function status_changed()
+	dlog("status changed")
+end
+
+function meta_changed()
+	dlog("meta changed")
 end
