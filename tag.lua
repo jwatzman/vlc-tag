@@ -34,14 +34,15 @@ function descriptor()
 		author = "Josh Watzman";
 		url = "https://github.com/jwatzman/vlc-tag/";
 		shortdesc = "Tag arbitrary media and filter to those tags";
-		capabilities = { "input-listener", "playing-listener", "meta-listener" }
+		capabilities = { "input-listener" }
 	}
 end
 
 function activate()
 	dlog("activate")
 	dlg = vlc.dialog(appname)
-	test_label = dlg:add_label("Hi test", 1, 1)
+	test_label = dlg:add_label("", 1, 1)
+	set_label_text()
 end
 
 function deactivate()
@@ -58,13 +59,14 @@ end
 
 function input_changed()
 	dlog("input changed")
-	test_label:set_text(vlc.input.item():uri())
+	set_label_text()
 end
 
-function status_changed()
-	dlog("status changed")
-end
-
-function meta_changed()
-	dlog("meta changed")
+function set_label_text()
+	local item = vlc.input.item()
+	if item then
+		test_label:set_text(vlc.input.item():uri())
+	else
+		test_label:set_text("(nothing playing)")
+	end
 end
