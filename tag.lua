@@ -102,26 +102,49 @@ end
 
 function filter_button_clicked()
 	dlog("filter button clicked")
-	--[[
-	dlog("---")
-	for k,v in pairs(tags) do
-		dlog(string.format("%s => %s", k, v))
-	end
-	dlog("---")
-	for k,v in pairs(vlc.playlist.get("playlist", false).children) do
-		dlog(string.format("%s => %s", k, v.path))
-	end
-	dlog("---")
-	]]--
 
-	--[[
-	for i,v in pairs(vlc.playlist.get("playlist", false).children) do
+	local include, exclude = {}, {}
+	for _, v in pairs(split(filter_input:get_text(), " ")) do
+		local sigil = v:sub(1,1)
+		local tag = v:sub(2)
+		if sigil == "+" then
+			include[tag] = tag
+		elseif sigil == "-" then
+			exclude[tag] = tag
+		else
+			include[v] = v
+		end
 	end
-	]]--
 
-	for i,v in pairs(split(filter_input:get_text(), " ")) do
-		dlog(string.format("%s => %s", i, v))
+	for _, v in pairs(vlc.playlist.get("playlist", false).children) do
+		if not passes_filters(v.path, include, exclude) then
+			dlog(string.format("filtering %s", v.path))
+			vlc.playlist.delete(tonumber(v.id))
+		end
 	end
+end
+
+function passes_filters(uri, include, exclude)
+	local uri_tags = tags[uri]
+	if not uri_tags then
+		uri_tags = {"NOTAGS"}
+	end
+
+	local tags_set = array_to_set(uri_tags)
+
+	for _, v in pairs(exclude) do
+		if tags_set[v] then
+			return false
+		end
+	end
+
+	for _, v in pairs(include) do
+		if not tags_set[v] then
+			return false
+		end
+	end
+
+	return true
 end
 
 -- Adapted from http://lua-users.org/wiki/SplitJoin
@@ -132,9 +155,9 @@ function split(str, sep)
 	return fields
 end
 
-function values_to_set(vals)
+function array_to_set(vals)
 	local set = {}
-	for _, v in vals do
+	for _, v in pairs(vals) do
 		set[v] = v
 	end
 	return set
