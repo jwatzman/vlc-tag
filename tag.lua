@@ -23,6 +23,7 @@ appname = "Tagger"
 dlg = nil
 playing_label = nil
 tag_input = nil
+filter_input = nil
 
 tags = {}
 playing_uri = nil
@@ -45,10 +46,15 @@ end
 function activate()
 	dlog("activate")
 	dlg = vlc.dialog(appname)
+
 	dlg:add_label("Playing:", 1, 1)
 	playing_label = dlg:add_label("", 2, 1)
+
 	dlg:add_label("Tags:", 1, 2)
 	tag_input = dlg:add_text_input("", 2, 2)
+
+	dlg:add_button("Filter", filter_button_clicked, 1, 4)
+	filter_input = dlg:add_text_input("", 2, 4)
 
 	input_changed()
 end
@@ -74,7 +80,7 @@ function input_changed()
 
 	local input_text = tag_input:get_text()
 	if playing_uri and input_text:len() > 0 then
-		tags[playing_uri] = input_text
+		tags[playing_uri] = split(input_text, " ")
 	end
 
 	tag_input:set_text("")
@@ -84,12 +90,52 @@ function input_changed()
 		playing_uri = item:uri()
 		playing_label:set_text(playing_uri)
 
-		local input_text = tags[playing_uri]
-		if input_text then
-			tag_input:set_text(input_text)
+		local playing_tags = tags[playing_uri]
+		if playing_tags then
+			tag_input:set_text(table.concat(playing_tags, " "))
 		end
 	else
 		playing_uri = nil
 		playing_label:set_text("(nothing playing)")
 	end
+end
+
+function filter_button_clicked()
+	dlog("filter button clicked")
+	--[[
+	dlog("---")
+	for k,v in pairs(tags) do
+		dlog(string.format("%s => %s", k, v))
+	end
+	dlog("---")
+	for k,v in pairs(vlc.playlist.get("playlist", false).children) do
+		dlog(string.format("%s => %s", k, v.path))
+	end
+	dlog("---")
+	]]--
+
+	--[[
+	for i,v in pairs(vlc.playlist.get("playlist", false).children) do
+	end
+	]]--
+
+	for i,v in pairs(split(filter_input:get_text(), " ")) do
+		dlog(string.format("%s => %s", i, v))
+	end
+end
+
+-- Adapted from http://lua-users.org/wiki/SplitJoin
+function split(str, sep)
+	local fields = {}
+	local pattern = string.format("([^%s]+)", sep)
+	str:gsub(pattern, function(c) fields[#fields+1] = c end)
+	return fields
+end
+
+function values_to_set(vals)
+	local set = {}
+	for _, v in vals do
+		set[v] = v
+	end
+	return set
 end
