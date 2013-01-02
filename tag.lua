@@ -21,7 +21,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
 
 appname = "Tagger"
 dlg = nil
-test_label = nil
+playing_label = nil
+tag_input = nil
+
+tags = {}
+playing_uri = nil
 
 function dlog(msg)
 	vlc.msg.warn(string.format("[%s] %s", appname, msg))
@@ -41,15 +45,23 @@ end
 function activate()
 	dlog("activate")
 	dlg = vlc.dialog(appname)
-	test_label = dlg:add_label("", 1, 1)
-	set_label_text()
+	dlg:add_label("Playing:", 1, 1)
+	playing_label = dlg:add_label("", 2, 1)
+	dlg:add_label("Tags:", 1, 2)
+	tag_input = dlg:add_text_input("", 2, 2)
+
+	input_changed()
 end
 
 function deactivate()
 	dlog("deactivate")
-	test_label = nil
+	tag_input = nil
+	playing_label = nil
 	dlg:delete()
 	dlg = nil
+
+	tags = {}
+	playing_uri = nil
 end
 
 function close()
@@ -59,14 +71,25 @@ end
 
 function input_changed()
 	dlog("input changed")
-	set_label_text()
-end
 
-function set_label_text()
+	local input_text = tag_input:get_text()
+	if playing_uri and input_text:len() > 0 then
+		tags[playing_uri] = input_text
+	end
+
+	tag_input:set_text("")
+
 	local item = vlc.input.item()
 	if item then
-		test_label:set_text(vlc.input.item():uri())
+		playing_uri = item:uri()
+		playing_label:set_text(playing_uri)
+
+		local input_text = tags[playing_uri]
+		if input_text then
+			tag_input:set_text(input_text)
+		end
 	else
-		test_label:set_text("(nothing playing)")
+		playing_uri = nil
+		playing_label:set_text("(nothing playing)")
 	end
 end
