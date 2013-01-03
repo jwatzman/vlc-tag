@@ -26,6 +26,7 @@ tag_input = nil
 filter_input = nil
 
 tags = {}
+tags_filename = nil
 playing_uri = nil
 
 function dlog(msg)
@@ -45,6 +46,12 @@ end
 
 function activate()
 	dlog("activate")
+
+	tags_filename = vlc.config.configdir() .. "/taggerdb"
+	dlog(tags_filename)
+
+	read_tags()
+
 	dlg = vlc.dialog(appname)
 
 	dlg:add_label("Playing:", 1, 1)
@@ -61,12 +68,16 @@ end
 
 function deactivate()
 	dlog("deactivate")
+
+	input_changed() -- force writeback to tags table and file
+
 	tag_input = nil
 	playing_label = nil
 	dlg:delete()
 	dlg = nil
 
 	tags = {}
+	tags_filename = nil
 	playing_uri = nil
 end
 
@@ -81,6 +92,7 @@ function input_changed()
 	local input_text = tag_input:get_text()
 	if playing_uri and input_text:len() > 0 then
 		tags[playing_uri] = split(input_text, " ")
+		write_tags()
 	end
 
 	tag_input:set_text("")
@@ -147,6 +159,27 @@ function passes_filters(uri, include, exclude)
 	return true
 end
 
+function read_tags()
+	dlog("reading tags")
+	local f = io.open(tags_filename, "rb")
+	if f then
+		local file_contents = f:read("*all")
+		f:close()
+		tags = loadstring(file_contents)()
+	end
+end
+
+function write_tags()
+	dlog("writing tags")
+	local f = io.open(tags_filename, "wb")
+	if f then
+		f:write(table_to_string(tags))
+		f:close()
+	else
+		dlog("failed to write tags!!")
+	end
+end
+
 -- Adapted from http://lua-users.org/wiki/SplitJoin
 function split(str, sep)
 	local fields = {}
@@ -164,7 +197,7 @@ function array_to_set(vals)
 end
 
 function table_to_string(t)
-	return "return {\n" .. table_to_string_rec(t, 1) .. "}"
+	return "return {\n" .. table_to_string_rec(t, 1) .. "}\n"
 end
 
 function table_to_string_rec(t, depth)
@@ -192,6 +225,8 @@ function val_to_string(v, depth)
 	local ty = type(v)
 	if ty == "table" then
 		return "{\n" .. table_to_string_rec(v, depth + 1) .. indent .. "}"
+	elseif ty == "number" then
+		return string.format("%d", v)
 	else
 		return string.format("%q", v)
 	end
