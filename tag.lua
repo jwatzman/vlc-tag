@@ -162,3 +162,37 @@ function array_to_set(vals)
 	end
 	return set
 end
+
+function table_to_string(t)
+	return "return {\n" .. table_to_string_rec(t, 1) .. "}"
+end
+
+function table_to_string_rec(t, depth)
+	local tab = "\t"
+	local indent = tab:rep(depth)
+
+	local result = ""
+	for k,v in pairs(t) do
+		-- I don't know lua very well, but I can't imagine these string
+		-- concatenations are efficient.
+		result = result .. indent ..
+			"[" .. val_to_string(k, depth) .. "]" ..
+			" = " ..
+			val_to_string(v, depth) ..
+			",\n"
+	end
+
+	return result
+end
+
+function val_to_string(v, depth)
+	local tab = "\t"
+	local indent = tab:rep(depth)
+
+	local ty = type(v)
+	if ty == "table" then
+		return "{\n" .. table_to_string_rec(v, depth + 1) .. indent .. "}"
+	else
+		return string.format("%q", v)
+	end
+end
