@@ -63,6 +63,9 @@ function activate()
 	dlg:add_button("Filter", filter_button_clicked, 1, 3)
 	filter_input = dlg:add_text_input("", 2, 3)
 
+	dlg:add_button("Update", input_changed, 1, 4)
+	dlg:add_label("(for OS X)", 2, 4)
+
 	input_changed()
 end
 
