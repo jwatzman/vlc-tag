@@ -60,8 +60,8 @@ function activate()
 	dlg:add_label("Tags:", 1, 2)
 	tag_input = dlg:add_text_input("", 2, 2)
 
-	dlg:add_button("Filter", filter_button_clicked, 1, 4)
-	filter_input = dlg:add_text_input("", 2, 4)
+	dlg:add_button("Filter", filter_button_clicked, 1, 3)
+	filter_input = dlg:add_text_input("", 2, 3)
 
 	input_changed()
 end
