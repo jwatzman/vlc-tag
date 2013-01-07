@@ -36,7 +36,7 @@ end
 function descriptor()
 	return {
 		title = appname;
-		version = "0.0";
+		version = "0.1";
 		author = "Josh Watzman";
 		url = "https://github.com/jwatzman/vlc-tag/";
 		shortdesc = "Tag arbitrary media and filter to those tags";
