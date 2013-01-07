@@ -7,7 +7,7 @@ playlists based on those tags.
 Usage
 =====
 
-![Tagger screenshot](vlc-tag/tagger.png)
+![Tagger screenshot](https://raw.github.com/jwatzman/vlc-tag/master/tagger.png)
 
 - The first line displays the full URI of the item playing. The tag DB stores tags
 by their URI.
