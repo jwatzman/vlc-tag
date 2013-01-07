@@ -7,7 +7,7 @@ playlists based on those tags.
 Usage
 =====
 
-![Tagger screenshot](tagger.png)
+![Tagger screenshot](vlc-tag/tagger.png)
 
 - The first line displays the full URI of the item playing. The tag DB stores tags
 by their URI.
@@ -33,6 +33,7 @@ tag DB). Again, as of this writing, I have a patch in review which will fix this
 problem, and will hopefully be included in VLC 2.1:
 
 http://mailman.videolan.org/pipermail/vlc-devel/2013-January/091288.html
+
 http://patches.videolan.org/patch/912/
 
 There's another issue where any update to the dialog would cause it to re-center,
@@ -40,6 +41,7 @@ which is really annoying when tagging a large volume of files. My patch to fix t
 was accepted and will be included in VLC 2.1 and 2.0.6.
 
 http://git.videolan.org/?p=vlc.git;a=commit;h=ad765c21ffe71fe27b3b6a03ebaa878408ba40ee
+
 http://git.videolan.org/?p=vlc/vlc-2.0.git;a=commit;h=67b896c381209266ed7afc978aef8b20135ed557
 
 Depending on when you are reading this, and what has happened to my patches, you may
